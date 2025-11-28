@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  mock-fastpay:
+    build:
+      context: .
+      dockerfile: MockFastPay/Dockerfile
+    container_name: mock-fastpay
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - MOCK_MODE=${FASTPAY_MOCK_MODE:-success}
+    restart: unless-stopped
+    networks:
+      - payflow-network
+
+  mock-securepay:
+    build:
+      context: .
+      dockerfile: MockSecurePay/Dockerfile
+    container_name: mock-securepay
+    ports:
+      - "8083:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - MOCK_MODE=${SECUREPAY_MOCK_MODE:-success}
+    restart: unless-stopped
+    networks:
+      - payflow-network
+
+  payflow-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payflow-api
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - PaymentProviders__FastPay__BaseUrl=http://mock-fastpay:8080
+      - PaymentProviders__SecurePay__BaseUrl=http://mock-securepay:8080
+    depends_on:
+      - mock-fastpay
+      - mock-securepay
+    restart: unless-stopped
+    networks:
+      - payflow-network
+
+networks:
+  payflow-network:
+    driver: bridge
+
