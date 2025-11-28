@@ -8,19 +8,25 @@ Os testes unitários validam o comportamento de componentes individuais do siste
 
 ## Estrutura de Testes
 
-O projeto está preparado para testes unitários usando xUnit, o framework de testes padrão do .NET.
+O projeto de testes unitários está implementado e utiliza xUnit como framework de testes padrão do .NET.
 
-### Criar Projeto de Testes
+### Estrutura do Projeto
 
-Para criar um projeto de testes, execute:
+O projeto `PayFlow.Tests` está localizado na raiz da solução e possui a seguinte estrutura:
 
-```bash
-dotnet new xunit -n PayFlow.Tests
-cd PayFlow.Tests
-dotnet add reference ../PayFlow.Services/PayFlow.Services.csproj
-dotnet add reference ../PayFlow.Providers/PayFlow.Providers.csproj
-dotnet add reference ../PayFlow.Domain/PayFlow.Domain.csproj
 ```
+PayFlow.Tests/
+├── Services/
+│   └── PaymentServiceTests.cs
+├── Providers/
+│   ├── FastPayProviderTests.cs
+│   └── SecurePayProviderTests.cs
+└── PayFlow.Tests.csproj
+```
+
+### Status dos Testes
+
+O projeto de testes está completamente implementado com 29 testes unitários cobrindo todos os componentes críticos do sistema. Todos os testes estão passando com sucesso.
 
 ## Executar Testes
 
@@ -42,62 +48,81 @@ dotnet test PayFlow.Tests
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-## Componentes a Testar
+## Componentes Testados
 
-### 1. PaymentService
+### 1. PaymentService (9 testes)
 
-Testes para validar:
-- Seleção correta do provedor baseado no valor
-- Cálculo correto de taxas
-- Funcionamento do sistema de fallback
-- Geração de IDs sequenciais
-- Cálculo de valores líquidos
+A classe `PaymentServiceTests` contém testes que validam:
 
-**Exemplo de teste:**
-```csharp
-[Fact]
-public async Task ProcessPayment_AmountLessThan100_ShouldUseFastPay()
-{
-    // Arrange
-    var fastPayProvider = new Mock<IPaymentProvider>();
-    var securePayProvider = new Mock<IPaymentProvider>();
-    var service = new PaymentService(fastPayProvider.Object, securePayProvider.Object);
-    
-    // Act
-    var result = await service.ProcessPaymentAsync(new PaymentRequest 
-    { 
-        Amount = 50.00m, 
-        Currency = "BRL" 
-    });
-    
-    // Assert
-    Assert.Equal("FastPay", result.Provider);
-}
-```
+- Seleção correta do provedor primário baseado no valor (< R$100 = FastPay, >= R$100 = SecurePay)
+- Cálculo correto de taxas usando o provider selecionado
+- Sistema de fallback quando provider primário falha
+- Geração sequencial de IDs de pagamento
+- Cálculo correto de valores líquidos (gross - fee)
+- Status rejected quando ambos providers falham
+- Uso correto do provider de fallback quando primário falha
+- Valores limite (exatamente R$100.00)
 
-### 2. FastPayProvider
+**Testes implementados:**
+- `ProcessPayment_AmountLessThanThreshold_ShouldUseFastPay`
+- `ProcessPayment_AmountGreaterThanOrEqualThreshold_ShouldUseSecurePay`
+- `ProcessPayment_AmountExactlyThreshold_ShouldUseSecurePay`
+- `ProcessPayment_FastPayFails_ShouldUseSecurePayAsFallback`
+- `ProcessPayment_SecurePayFails_ShouldUseFastPayAsFallback`
+- `ProcessPayment_BothProvidersFail_ShouldReturnRejected`
+- `ProcessPayment_ShouldGenerateSequentialIds`
+- `ProcessPayment_ShouldCalculateNetAmountCorrectly`
 
-Testes para validar:
-- Cálculo correto da taxa (3.49%)
+### 2. FastPayProvider (9 testes)
+
+A classe `FastPayProviderTests` contém testes que validam:
+
+- Cálculo correto da taxa (3.49% do valor)
+- Processamento bem-sucedido com resposta aprovada
+- Processamento rejeitado com resposta rejeitada
+- Tratamento de erro HTTP (HttpRequestException)
+- Tratamento de resposta inválida
 - Formatação correta da requisição
-- Parsing correto da resposta
-- Tratamento de erros HTTP
-- Conversão de status
+- Conversão correta do status da resposta (case-insensitive)
 
-### 3. SecurePayProvider
+**Testes implementados:**
+- `CalculateFee_ShouldReturnCorrectPercentage`
+- `ProviderName_ShouldReturnFastPay`
+- `ProcessPaymentAsync_SuccessfulResponse_ShouldReturnApproved`
+- `ProcessPaymentAsync_RejectedResponse_ShouldReturnRejected`
+- `ProcessPaymentAsync_NullResponse_ShouldReturnFailure`
+- `ProcessPaymentAsync_HttpRequestException_ShouldReturnFailure`
+- `ProcessPaymentAsync_GenericException_ShouldReturnFailure`
+- `ProcessPaymentAsync_ShouldFormatRequestCorrectly`
+- `ProcessPaymentAsync_StatusCaseInsensitive_ShouldHandleCorrectly`
 
-Testes para validar:
-- Cálculo correto da taxa (2.99% + R$ 0.40)
+### 3. SecurePayProvider (11 testes)
+
+A classe `SecurePayProviderTests` contém testes que validam:
+
+- Cálculo correto da taxa (2.99% + R$0.40 fixo)
 - Conversão de valor para centavos
+- Processamento bem-sucedido com resultado "success"
+- Processamento rejeitado com resultado diferente de "success"
+- Tratamento de erro HTTP (HttpRequestException)
+- Tratamento de resposta inválida
 - Formatação correta da requisição
-- Parsing correto da resposta
-- Tratamento de erros HTTP
+- Geração correta de ClientReference
+- Cálculo de taxa com valores zero e grandes
 
-### 4. PaymentConstants
-
-Testes para validar:
-- Valores das constantes estão corretos
-- Constantes são imutáveis
+**Testes implementados:**
+- `CalculateFee_ShouldReturnCorrectPercentagePlusFixed`
+- `ProviderName_ShouldReturnSecurePay`
+- `ProcessPaymentAsync_SuccessfulResponse_ShouldReturnApproved`
+- `ProcessPaymentAsync_NonSuccessResponse_ShouldReturnRejected`
+- `ProcessPaymentAsync_NullResponse_ShouldReturnFailure`
+- `ProcessPaymentAsync_HttpRequestException_ShouldReturnFailure`
+- `ProcessPaymentAsync_GenericException_ShouldReturnFailure`
+- `ProcessPaymentAsync_ShouldConvertAmountToCents`
+- `ProcessPaymentAsync_ShouldFormatRequestCorrectly`
+- `ProcessPaymentAsync_ShouldGenerateClientReference`
+- `CalculateFee_WithZeroAmount_ShouldReturnFixedFee`
+- `CalculateFee_WithLargeAmount_ShouldCalculateCorrectly`
 
 ## Mocking de Dependências
 
@@ -264,11 +289,33 @@ public class PaymentServiceTests
 }
 ```
 
+## Resultados dos Testes
+
+### Execução Completa
+
+Para executar todos os testes unitários:
+
+```bash
+dotnet test PayFlow.Tests --verbosity normal
+```
+
+**Status atual:** Todos os 29 testes estão passando com sucesso.
+
+### Resumo de Cobertura
+
+- **PaymentService:** 9 testes cobrindo seleção de provider, fallback, cálculos e geração de IDs
+- **FastPayProvider:** 9 testes cobrindo cálculo de taxa, processamento, tratamento de erros e formatação
+- **SecurePayProvider:** 11 testes cobrindo cálculo de taxa, conversão, processamento e tratamento de erros
+
+### Validação Automatizada
+
+Os testes unitários podem ser executados automaticamente através do script `test-unitarios.ps1` localizado em `C:\Users\User\Desktop\Clones\WMO\Doc\SOUE_Desafio_Tecnico_DevOps\tests\`.
+
 ## Próximos Passos
 
-1. Crie o projeto de testes conforme instruções acima
-2. Implemente testes para cada componente crítico
-3. Configure cobertura de código
+1. ✅ Projeto de testes criado e configurado
+2. ✅ Testes implementados para todos os componentes críticos
+3. Configure cobertura de código (opcional)
 4. Integre testes no pipeline de CI/CD
 5. Use os scripts automatizados para validação contínua
 

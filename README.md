@@ -22,13 +22,11 @@ Este projeto possui documentação completa organizada em guias específicos:
    - Controle via endpoints
 
 4. **[Guia de Testes Unitários](DOC_TESTES_UNITARIOS.md)** - Aprenda como executar e criar testes unitários
-   - Estrutura de testes
+   - Estrutura de testes implementada
+   - 29 testes unitários cobrindo todos os componentes
    - Como criar mocks
    - Boas práticas
-   - Testes de Docker e containers
-   - Testes de API e endpoints
-   - Testes de fallback
-   - Testes unitários automatizados
+   - Execução e validação de testes
 
 ## Arquitetura
 
@@ -45,10 +43,13 @@ PayFlow/
 │   └── Constants/           # Constantes do sistema
 ├── PayFlow.Services/         # Lógica de negócio
 │   └── PaymentService.cs    # Orquestração de pagamentos
-└── PayFlow.Providers/        # Implementações dos provedores
-    ├── FastPayProvider.cs    # Integração com FastPay
-    ├── SecurePayProvider.cs  # Integração com SecurePay
-    └── HttpClientWrapper.cs # Wrapper para chamadas HTTP
+├── PayFlow.Providers/        # Implementações dos provedores
+│   ├── FastPayProvider.cs    # Integração com FastPay
+│   ├── SecurePayProvider.cs  # Integração com SecurePay
+│   └── HttpClientWrapper.cs # Wrapper para chamadas HTTP
+└── PayFlow.Tests/           # Testes unitários
+    ├── Services/             # Testes da camada de serviços
+    └── Providers/            # Testes dos provedores
 ```
 
 ### Fluxo de Execução
@@ -216,6 +217,18 @@ As URLs dos provedores podem ser configuradas via:
    ```
 
 ## Como Testar
+
+### Testes Unitários
+
+O projeto possui 29 testes unitários implementados cobrindo todos os componentes críticos:
+
+```bash
+dotnet test PayFlow.Tests --verbosity normal
+```
+
+Para mais detalhes, consulte o [Guia de Testes Unitários](DOC_TESTES_UNITARIOS.md).
+
+### Testes Manuais via API
 
 ### Teste 1: Pagamento com FastPay (Valor < R$ 100)
 

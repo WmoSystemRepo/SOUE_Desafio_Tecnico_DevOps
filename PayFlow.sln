@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayFlow.Providers", "PayFlo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayFlow.API", "PayFlow.API\PayFlow.API.csproj", "{D859C33C-CAE5-48D4-984D-3DBFD9ED115C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayFlow.Tests", "PayFlow.Tests\PayFlow.Tests.csproj", "{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{D859C33C-CAE5-48D4-984D-3DBFD9ED115C}.Release|x64.Build.0 = Release|Any CPU
 		{D859C33C-CAE5-48D4-984D-3DBFD9ED115C}.Release|x86.ActiveCfg = Release|Any CPU
 		{D859C33C-CAE5-48D4-984D-3DBFD9ED115C}.Release|x86.Build.0 = Release|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Debug|x64.Build.0 = Debug|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Debug|x86.Build.0 = Debug|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Release|x64.ActiveCfg = Release|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Release|x64.Build.0 = Release|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Release|x86.ActiveCfg = Release|Any CPU
+		{C429FFB5-911A-4D5B-9B90-87106C6DDDFA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
